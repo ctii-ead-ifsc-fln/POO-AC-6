@@ -1,0 +1,103 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+package domain {
+interface Agendavel {
+    + agendarConsulta(Consulta consulta) : void
+}
+
+class Pessoa {
+    - nome : String
+    - cpf : String
+    + Pessoa(String nome, String cpf)
+    + exibirInformacoes() : void
+}
+
+class Medico {
+    - especialidade : String
+    - crm : String
+    + Medico(String nome, String cpf, String especialidade, String crm)
+    + adicionarConsulta(Consulta consulta) : void
+    + agendarConsulta(Consulta consulta) : void
+    + exibirInformacoes() : void
+}
+
+class Paciente {
+    - contato: String
+    + Paciente(String nome, String cpf, String rua, Cidade cidade)
+    + agendarConsulta(Consulta consulta) : void
+    + exibirInformacoes() : void
+}
+
+class Endereco {
+    - rua : String
+    - complemento: String
+    + Endereco(String rua, Cidade cidade)
+}
+
+class Cidade {
+    - nome : String
+    - uf : String
+    + Cidade(String nome, String uf)
+}
+
+class Consulta {
+    - dataConsulta : String
+    - horario : String
+    + Consulta(String dataConsulta, String horario, Medico medico,\n Paciente paciente, Prioridade prioridade, String descricaoConsulta)
+}
+
+class RegistroConsulta {
+    - descricao : String
+    + RegistroConsulta(Consulta consulta, String descricao)
+    + adicionarMedicamento(Medicamento medicamento) : void
+}
+
+class Medicamento {
+    - nome : String
+    - fabricante : String
+    + Medicamento(String nome, String fabricante)
+}
+
+class HistoricoMedicacao {
+    - descricao : String
+    + HistoricoMedicacao(RegistroConsulta registroConsulta, Medicamento medicamento, String descricao)
+}
+
+
+enum Prioridade {
+    ALTA
+    MEDIA
+    BAIXA
+}
+}
+
+package report {
+    class RelatorioConsulta {
+        + {static} imprimirDetalhes(Consulta consulta)
+    }
+}
+
+package exceptions {
+    ' Classe de exceção para medicamentos indicados
+    class MedicamentoIndicadoException {
+        + MedicamentoIndicadoException(mensagem: String)
+    }
+}
+
+Pessoa <|-- Medico
+Pessoa <|-- Paciente
+Paciente "1" -- "consultas 0..*" Consulta
+Consulta --> Prioridade : " define"
+Paciente "1" *--> "1" Endereco : " possui"
+Endereco "1" --> "1" Cidade : " localizado em"
+Medico "1" -- "0..*" Consulta : " realiza"
+Consulta "1" *--> "1" RegistroConsulta
+RegistroConsulta "0..*" *-- "0..*" Medicamento : contem >
+(RegistroConsulta, Medicamento) .. HistoricoMedicacao
+Agendavel <|.. Medico
+Agendavel <|.. Paciente
+
+RelatorioConsulta ..> Consulta
+
+@enduml
